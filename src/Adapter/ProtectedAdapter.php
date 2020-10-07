@@ -7,6 +7,7 @@ use InvalidArgumentException;
 use League\Flysystem\AzureBlobStorage\AzureBlobStorageAdapter;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use SilverStripe\Assets\Flysystem\ProtectedAdapter as SilverstripeProtectedAdapter;
+use SilverStripe\Control\Controller;
 
 class ProtectedAdapter extends AzureBlobStorageAdapter implements SilverstripeProtectedAdapter
 {
@@ -60,7 +61,11 @@ class ProtectedAdapter extends AzureBlobStorageAdapter implements SilverstripePr
      */
     public function getProtectedUrl($path)
     {
-        throw new Exception('Not implemented yet');
+        if ($meta = $this->getMetadata($path)) {
+            return Controller::join_links(ASSETS_DIR, $meta['path']);
+        }
+
+        return '';
     }
 
     public function getVisibility($path)

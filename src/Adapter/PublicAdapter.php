@@ -6,6 +6,7 @@ use InvalidArgumentException;
 use League\Flysystem\AzureBlobStorage\AzureBlobStorageAdapter;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use SilverStripe\Assets\Flysystem\PublicAdapter as SilverstripePublicAdapter;
+use SilverStripe\Control\Controller;
 
 class PublicAdapter extends AzureBlobStorageAdapter implements SilverstripePublicAdapter
 {
@@ -32,7 +33,7 @@ class PublicAdapter extends AzureBlobStorageAdapter implements SilverstripePubli
     public function getPublicUrl($path)
     {
         if ($meta = $this->getMetadata($path)) {
-            return $meta['url'];
+            return Controller::join_links(ASSETS_DIR, $meta['path']);
         }
 
         return '';
