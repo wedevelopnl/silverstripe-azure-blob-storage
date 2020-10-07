@@ -1,5 +1,8 @@
 # Silverstripe Azure Blob Storage
 
+[![Version](http://img.shields.io/packagist/v/fullscreeninteractive/silverstripe-azure-blob-storage.svg?style=flat-square)](https://packagist.org/packages/fullscreeninteractive/silverstripe-azure-blob-storage)
+[![License](http://img.shields.io/packagist/l/fullscreeninteractive/silverstripe-azure-blob-storage.svg?style=flat-square)](LICENSE)
+
 Silverstripe module to store assets in Azure Blob Storage rather than on the
 local filesystem. This leverages Flysystem in Silverstripe 4.
 
