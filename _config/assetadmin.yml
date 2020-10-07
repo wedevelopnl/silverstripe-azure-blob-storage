@@ -1,0 +1,10 @@
+---
+Name: silverstripe-azure-assetadmin
+Only:
+  moduleexists: silverstripe/asset-admin
+---
+# Ensure we use links and not inline thumbnails for all assets
+SilverStripe\AssetAdmin\Model\ThumbnailGenerator:
+  thumbnail_links:
+    protected: url
+    public: url
