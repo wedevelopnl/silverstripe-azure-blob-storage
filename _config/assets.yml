@@ -14,6 +14,7 @@ SilverStripe\Core\Injector\Injector:
     constructor:
       connectionUrl: '`AZURE_CONNECTION_URL`'
       containerName: '`AZURE_CONTAINER_NAME`'
+      assetDomain: '`AZURE_CONTAINER_NAME`'
   League\Flysystem\Cached\Storage\Memory.public:
     class: League\Flysystem\Cached\Storage\Memory
   League\Flysystem\Cached\Storage\Adapter.public:
@@ -30,7 +31,7 @@ SilverStripe\Core\Injector\Injector:
   FullscreenInteractive\SilverStripe\AzureStorage\Adapter\ProtectedAdapter:
     constructor:
       connectionUrl: '`AZURE_CONNECTION_URL`'
-      containerName: '`AZURE_CONTAINER_NAME`'
+      containerName: '`AZURE_PROTECTED_CONTAINER_NAME`'
   League\Flysystem\Cached\Storage\Adapter.protected:
       class: League\Flysystem\Cached\Storage\Adapter
       constructor:

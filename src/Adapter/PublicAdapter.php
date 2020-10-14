@@ -2,15 +2,17 @@
 
 namespace FullscreenInteractive\SilverStripe\AzureStorage\Adapter;
 
+use FullscreenInteractive\SilverStripe\AzureStorage\Service\BlobService;
 use InvalidArgumentException;
 use League\Flysystem\AzureBlobStorage\AzureBlobStorageAdapter;
-use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use SilverStripe\Assets\Flysystem\PublicAdapter as SilverstripePublicAdapter;
 use SilverStripe\Control\Controller;
 
 class PublicAdapter extends AzureBlobStorageAdapter implements SilverstripePublicAdapter
 {
-    public function __construct($connectionUrl = '', $containerName = '')
+    private $assetDomain;
+
+    public function __construct($connectionUrl = '', $containerName = '', $assetDomain = '')
     {
         if (!$connectionUrl) {
             throw new InvalidArgumentException("AZURE_CONNECTION_URL environment variable not set");
@@ -20,7 +22,15 @@ class PublicAdapter extends AzureBlobStorageAdapter implements SilverstripePubli
             throw new InvalidArgumentException("AZURE_CONTAINER_NAME environment variable not set");
         }
 
-        $client = BlobRestProxy::createBlobService($connectionUrl);
+        $client = BlobService::clientForConnection($connectionUrl);
+
+        if ($assetDomain) {
+            $this->assetDomain = $assetDomain;
+        } else {
+            $this->assetDomain = (string) BlobService::getClient()
+                ->getPsrPrimaryUri()
+                ->withPath($containerName);
+        }
 
         parent::__construct($client, $containerName);
     }
@@ -32,10 +42,14 @@ class PublicAdapter extends AzureBlobStorageAdapter implements SilverstripePubli
      */
     public function getPublicUrl($path)
     {
-        if ($meta = $this->getMetadata($path)) {
-            return Controller::join_links(ASSETS_DIR, $meta['path']);
+        $parts = explode('/', $path);
+
+        if (isset($parts[0]) && $parts[0] === ASSETS_DIR) {
+            array_shift($parts);
         }
 
-        return '';
+        $path = implode('/', $parts);
+
+        return Controller::join_links($this->assetDomain, $path);
     }
 }

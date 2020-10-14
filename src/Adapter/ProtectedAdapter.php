@@ -2,10 +2,9 @@
 
 namespace FullscreenInteractive\SilverStripe\AzureStorage\Adapter;
 
-use Exception;
+use FullscreenInteractive\SilverStripe\AzureStorage\Service\BlobService;
 use InvalidArgumentException;
 use League\Flysystem\AzureBlobStorage\AzureBlobStorageAdapter;
-use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use SilverStripe\Assets\Flysystem\ProtectedAdapter as SilverstripeProtectedAdapter;
 use SilverStripe\Control\Controller;
 
@@ -28,7 +27,7 @@ class ProtectedAdapter extends AzureBlobStorageAdapter implements SilverstripePr
             throw new InvalidArgumentException("AZURE_CONTAINER_NAME environment variable not set");
         }
 
-        $client = BlobRestProxy::createBlobService($connectionUrl);
+        $client = BlobService::clientForConnection($connectionUrl);
 
         parent::__construct($client, $containerName);
     }

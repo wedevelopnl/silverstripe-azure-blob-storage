@@ -11,7 +11,14 @@ local filesystem. This leverages Flysystem in Silverstripe 4.
 The module requires a few environment variables to be set
 
 * `AZURE_CONNECTION_URL`: The connection URL as from the dashboard
-* `AZURE_CONTAINER_NAME`: The name of the container to store assets in.
+* `AZURE_CONTAINER_NAME`: The name of the container to store public assets in.
+* `AZURE_PROTECTED_CONTAINER_NAME`: The name of the container for protected
+assets
+
+By default the module will serve public files from the URL provided in
+`AZURE_CONNECTION_URL` (e.g silverstripe-assets.blob.core.windows.net) unless
+ `AZURE_PUBLIC_BLOB_DOMAIN` is set. Protected assets are always served from the
+ local domain and routed through the permission checking.
 
 ## Installation
 
@@ -33,3 +40,6 @@ directly accessed.
 The module supports this by streaming the contents of protected files down to the browser
 via the web server (as opposed to linking directly) by default. To ensure that
 protected assets can't be accessed, ensure you setup an appropriate policy.
+
+## CORS
+
