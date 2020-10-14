@@ -43,3 +43,6 @@ protected assets can't be accessed, ensure you setup an appropriate policy.
 
 ## CORS
 
+CORS is an HTTP feature that enables a web application running under one domain
+to access resources in another domain. Make sure your storage account has
+allowed the websites hostname with `GET` as an allowed method.
