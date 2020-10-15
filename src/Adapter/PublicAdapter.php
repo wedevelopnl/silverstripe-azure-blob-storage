@@ -24,7 +24,7 @@ class PublicAdapter extends AzureBlobStorageAdapter implements SilverstripePubli
 
         $client = BlobService::clientForConnection($connectionUrl);
 
-        if ($assetDomain) {
+        if ($assetDomain && !empty($assetDomain)) {
             $this->assetDomain = $assetDomain;
         } else {
             $this->assetDomain = (string) BlobService::getClient()
