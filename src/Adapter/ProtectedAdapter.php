@@ -24,7 +24,7 @@ class ProtectedAdapter extends AzureBlobStorageAdapter implements SilverstripePr
         }
 
         if (!$containerName) {
-            throw new InvalidArgumentException("AZURE_CONTAINER_NAME environment variable not set");
+            throw new InvalidArgumentException("AZURE_PROTECTED_CONTAINER_NAME environment variable not set");
         }
 
         $client = BlobService::clientForConnection($connectionUrl);
