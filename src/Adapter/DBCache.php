@@ -64,6 +64,8 @@ class DBCache extends AbstractCache
         $contents = $this->getForStorage();
         $blobCache = BlobCache::instance($this->key, $this->expire);
         $blobCache->Contents = $contents;
-        $blobCache->write();
+
+        // Force write to ensure modified date is refreshed
+        $blobCache->write(false, false, true);
     }
 }
