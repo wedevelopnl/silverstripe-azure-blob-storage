@@ -6,7 +6,7 @@ After:
   - '#assetsflysystem'
 ---
 SilverStripe\Core\Injector\Injector:
-  League\Flysystem\Adapter\Local:
+  League\Flysystem\Adapter\Local.cache:
     class: League\Flysystem\Adapter\Local
     constructor:
       root: '`TEMP_PATH`'
@@ -20,7 +20,7 @@ SilverStripe\Core\Injector\Injector:
   League\Flysystem\Cached\Storage\Adapter.public:
     class: League\Flysystem\Cached\Storage\Adapter
     constructor:
-      adapter: '%$League\Flysystem\Adapter\Local'
+      adapter: '%$League\Flysystem\Adapter\Local.cache'
       file: 'azuremetadata/public'
       expire: 259200
   SilverStripe\Assets\Flysystem\PublicAdapter:
@@ -33,23 +33,13 @@ SilverStripe\Core\Injector\Injector:
       connectionUrl: '`AZURE_CONNECTION_URL`'
       containerName: '`AZURE_PROTECTED_CONTAINER_NAME`'
   League\Flysystem\Cached\Storage\Adapter.protected:
-      class: League\Flysystem\Cached\Storage\Adapter
-      constructor:
-        adapter: '%$League\Flysystem\Adapter\Local'
-        file: 'azuremetadata/protected'
-        expire: 259200
+    class: League\Flysystem\Cached\Storage\Adapter
+    constructor:
+      adapter: '%$League\Flysystem\Adapter\Local.cache'
+      file: 'azuremetadata/protected'
+      expire: 259200
   SilverStripe\Assets\Flysystem\ProtectedAdapter:
     class: FullscreenInteractive\SilverStripe\AzureStorage\Adapter\ProtectedCachedAdapter
     constructor:
       adapter: '%$FullscreenInteractive\SilverStripe\AzureStorage\Adapter\ProtectedAdapter'
       cache: '%$League\Flysystem\Cached\Storage\Adapter.protected'
----
-Name: silverstripe-azure-assetscore
-Only:
-  envvarset: AZURE_CONNECTION_URL
-After:
-  - '#assetscore'
----
-SilverStripe\Core\Injector\Injector:
-  SilverStripe\Assets\Storage\AssetStore:
-    class: SilverStripe\Assets\Flysystem\FlysystemAssetStore
