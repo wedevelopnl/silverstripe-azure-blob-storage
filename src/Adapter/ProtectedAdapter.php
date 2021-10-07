@@ -2,9 +2,9 @@
 
 namespace FullscreenInteractive\SilverStripe\AzureStorage\Adapter;
 
-use FullscreenInteractive\SilverStripe\AzureStorage\Service\BlobService;
-use InvalidArgumentException;
-use League\Flysystem\AzureBlobStorage\AzureBlobStorageAdapter;
+use DateTime;
+use MicrosoftAzure\Storage\Blob\BlobSharedAccessSignatureHelper;
+use MicrosoftAzure\Storage\Common\Internal\Resources;
 use SilverStripe\Assets\Flysystem\ProtectedAdapter as SilverstripeProtectedAdapter;
 use SilverStripe\Control\Controller;
 
@@ -15,22 +15,7 @@ class ProtectedAdapter extends AzureBlobStorageAdapter implements SilverstripePr
      *
      * @var int|string
      */
-    protected $expiry = 300;
-
-    public function __construct($connectionUrl = '', $containerName = '')
-    {
-        if (!$connectionUrl) {
-            throw new InvalidArgumentException("AZURE_CONNECTION_URL environment variable not set");
-        }
-
-        if (!$containerName) {
-            throw new InvalidArgumentException("AZURE_PROTECTED_CONTAINER_NAME environment variable not set");
-        }
-
-        $client = BlobService::clientForConnection($connectionUrl);
-
-        parent::__construct($client, $containerName);
-    }
+    protected $expiry = 3600;
 
     /**
      * @return int|string
@@ -47,7 +32,7 @@ class ProtectedAdapter extends AzureBlobStorageAdapter implements SilverstripePr
      * @param int|string $expiry
      * @return $this
      */
-    public function setExpiry($expiry)
+    public function setExpiry($expiry): self
     {
         $this->expiry = $expiry;
         return $this;
@@ -61,18 +46,50 @@ class ProtectedAdapter extends AzureBlobStorageAdapter implements SilverstripePr
     public function getProtectedUrl($path)
     {
         if ($meta = $this->getMetadata($path)) {
-            return Controller::join_links(ASSETS_DIR, $meta['path']);
+            $token = '?' . $this->presignToken($meta['path']);
+            return Controller::join_links($this->assetDomain, $meta['path'], $token);
         }
 
         return '';
     }
 
-    public function getVisibility($path)
+    public function getVisibility($path): array
     {
         // Save an API call
         return [
-            'path' => $path,
+            'path'       => $path,
             'visibility' => self::VISIBILITY_PRIVATE
         ];
+    }
+
+    /**
+     * Build a presigned token with an expiry
+     *
+     * @param string $path
+     * @return string
+     */
+    protected function presignToken(string $path): string
+    {
+        $sasHelper = new BlobSharedAccessSignatureHelper(
+            $this->settings->getName(),
+            $this->settings->getKey()
+        );
+
+        // Get expiry string
+        $expiry = $this->getExpiry();
+        if (is_int($expiry)) {
+            $expiry = "+{$expiry} seconds";
+        }
+        $validFrom = new DateTime();
+        $expiry = (new DateTime())->modify($expiry);
+
+        // Build token
+        return $sasHelper->generateBlobServiceSharedAccessSignatureToken(
+            Resources::RESOURCE_TYPE_BLOB,
+            $this->container . '/' . $path,
+            'r',
+            $expiry,
+            $validFrom
+        );
     }
 }
