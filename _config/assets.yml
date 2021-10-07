@@ -6,22 +6,15 @@ After:
   - '#assetsflysystem'
 ---
 SilverStripe\Core\Injector\Injector:
-  League\Flysystem\Adapter\Local.cache:
-    class: League\Flysystem\Adapter\Local
-    constructor:
-      root: '`TEMP_PATH`'
   FullscreenInteractive\SilverStripe\AzureStorage\Adapter\PublicAdapter:
     constructor:
       connectionUrl: '`AZURE_CONNECTION_URL`'
       containerName: '`AZURE_CONTAINER_NAME`'
       assetDomain: '`AZURE_PUBLIC_BLOB_DOMAIN`'
-  League\Flysystem\Cached\Storage\Memory.public:
-    class: League\Flysystem\Cached\Storage\Memory
   League\Flysystem\Cached\Storage\Adapter.public:
-    class: League\Flysystem\Cached\Storage\Adapter
+    class: FullscreenInteractive\SilverStripe\AzureStorage\Adapter\DBCache
     constructor:
-      adapter: '%$League\Flysystem\Adapter\Local.cache'
-      file: 'azuremetadata/public'
+      key: 'azuremetadata/public'
       expire: 259200
   SilverStripe\Assets\Flysystem\PublicAdapter:
     class: FullscreenInteractive\SilverStripe\AzureStorage\Adapter\PublicCachedAdapter
@@ -33,10 +26,9 @@ SilverStripe\Core\Injector\Injector:
       connectionUrl: '`AZURE_CONNECTION_URL`'
       containerName: '`AZURE_PROTECTED_CONTAINER_NAME`'
   League\Flysystem\Cached\Storage\Adapter.protected:
-    class: League\Flysystem\Cached\Storage\Adapter
+    class: FullscreenInteractive\SilverStripe\AzureStorage\Adapter\DBCache
     constructor:
-      adapter: '%$League\Flysystem\Adapter\Local.cache'
-      file: 'azuremetadata/protected'
+      key: 'azuremetadata/protected'
       expire: 259200
   SilverStripe\Assets\Flysystem\ProtectedAdapter:
     class: FullscreenInteractive\SilverStripe\AzureStorage\Adapter\ProtectedCachedAdapter
