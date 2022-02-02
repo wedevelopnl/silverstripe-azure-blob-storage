@@ -22,7 +22,7 @@ class BlobCache extends DataObject
     protected static $instances = [];
 
     private static $db = [
-        'Key'      => 'Varchar(255)',
+        'Key'      => 'Varchar(191)',
         'Contents' => 'Text',
     ];
 
