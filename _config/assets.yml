@@ -35,3 +35,16 @@ SilverStripe\Core\Injector\Injector:
     constructor:
       adapter: '%$FullscreenInteractive\SilverStripe\AzureStorage\Adapter\ProtectedAdapter'
       cache: '%$League\Flysystem\Cached\Storage\Adapter.protected'
+  League\Flysystem\Filesystem.tinymce:
+    class: 'League\Flysystem\Filesystem'
+    constructor:
+      FilesystemAdapter: '%$FullscreenInteractive\SilverStripe\AzureStorage\Adapter\TinyMceAdapter'
+      FilesystemConfig:
+        visibility: public
+  TinyMCEGeneratedAssetHandler:
+    class: 'SilverStripe\Assets\Flysystem\GeneratedAssets'
+    properties:
+      Filesystem: '%$League\Flysystem\Filesystem.tinymce'
+  SilverStripe\Forms\HTMLEditor\TinyMCECombinedGenerator:
+    properties:
+      AssetHandler: '%$TinyMCEGeneratedAssetHandler'
