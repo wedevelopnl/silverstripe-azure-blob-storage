@@ -3,7 +3,7 @@ Name: silverstripe-azure-flysystem
 Only:
   envvarset: AZURE_CONNECTION_URL
 After:
-  - '#assetsflysystem'
+  - assetsflysystem
 ---
 SilverStripe\Core\Injector\Injector:
   FullscreenInteractive\SilverStripe\AzureStorage\Adapter\PublicAdapter:
@@ -35,16 +35,3 @@ SilverStripe\Core\Injector\Injector:
     constructor:
       adapter: '%$FullscreenInteractive\SilverStripe\AzureStorage\Adapter\ProtectedAdapter'
       cache: '%$League\Flysystem\Cached\Storage\Adapter.protected'
-  League\Flysystem\Filesystem.tinymce:
-    class: 'League\Flysystem\Filesystem'
-    constructor:
-      FilesystemAdapter: '%$FullscreenInteractive\SilverStripe\AzureStorage\Adapter\TinyMceAdapter'
-      FilesystemConfig:
-        visibility: public
-  TinyMCEGeneratedAssetHandler:
-    class: 'SilverStripe\Assets\Flysystem\GeneratedAssets'
-    properties:
-      Filesystem: '%$League\Flysystem\Filesystem.tinymce'
-  SilverStripe\Forms\HTMLEditor\TinyMCECombinedGenerator:
-    properties:
-      AssetHandler: '%$TinyMCEGeneratedAssetHandler'

@@ -9,6 +9,8 @@ class PublicCachedAdapter extends CachedAdapter implements PublicAdapter
 {
     public function getPublicUrl($path)
     {
-        return $this->getAdapter()->getPublicUrl($path);
+        $url = $this->getAdapter()->getPublicUrl($path);
+
+        return $url;
     }
 }

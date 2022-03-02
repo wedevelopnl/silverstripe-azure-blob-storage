@@ -5,6 +5,7 @@ namespace FullscreenInteractive\SilverStripe\AzureStorage\Adapter;
 use Exception;
 use FullscreenInteractive\SilverStripe\AzureStorage\Model\BlobCache;
 use League\Flysystem\Cached\Storage\AbstractCache;
+use League\Flysystem\Util;
 
 class DBCache extends AbstractCache
 {
@@ -50,6 +51,15 @@ class DBCache extends AbstractCache
         if ($contents) {
             $this->setFromStorage($contents);
         }
+    }
+
+    public function has($path)
+    {
+        if (strpos($path, '_tinymce') !== false) {
+            return false;
+        }
+
+        return parent::has($path);
     }
 
     /**
