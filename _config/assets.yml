@@ -6,32 +6,63 @@ After:
   - assetsflysystem
 ---
 SilverStripe\Core\Injector\Injector:
+  League\Flysystem\Adapter\Local:
+    class: League\Flysystem\Adapter\Local
+    constructor:
+      root: '`TEMP_PATH`'
   FullscreenInteractive\SilverStripe\AzureStorage\Adapter\PublicAdapter:
     constructor:
       connectionUrl: '`AZURE_CONNECTION_URL`'
       containerName: '`AZURE_CONTAINER_NAME`'
       assetDomain: '`AZURE_PUBLIC_BLOB_DOMAIN`'
-  League\Flysystem\Cached\Storage\Adapter.public:
-    class: FullscreenInteractive\SilverStripe\AzureStorage\Adapter\DBCache
-    constructor:
-      key: 'azuremetadata/public'
-      expire: 259200
-  SilverStripe\Assets\Flysystem\PublicAdapter:
-    class: FullscreenInteractive\SilverStripe\AzureStorage\Adapter\PublicCachedAdapter
-    constructor:
-      adapter: '%$FullscreenInteractive\SilverStripe\AzureStorage\Adapter\PublicAdapter'
-      cache: '%$League\Flysystem\Cached\Storage\Adapter.public'
   FullscreenInteractive\SilverStripe\AzureStorage\Adapter\ProtectedAdapter:
     constructor:
       connectionUrl: '`AZURE_CONNECTION_URL`'
       containerName: '`AZURE_PROTECTED_CONTAINER_NAME`'
-  League\Flysystem\Cached\Storage\Adapter.protected:
-    class: FullscreenInteractive\SilverStripe\AzureStorage\Adapter\DBCache
+  Symfony\Component\Cache\Adapter\FilesystemAdapter.public:
+    class: Symfony\Component\Cache\Adapter\FilesystemAdapter
     constructor:
-      key: 'azuremetadata/protected'
-      expire: 259200
+      namespace: 'flysystem-public'
+      expire: 2592000
+  Symfony\Component\Cache\Adapter\FilesystemAdapter.protected:
+    class: Symfony\Component\Cache\Adapter\FilesystemAdapter
+    constructor:
+      namespace: 'flysystem-protected'
+      expire: 2592000
+  SilverStripe\Assets\Flysystem\PublicAdapter:
+    class: FullscreenInteractive\SilverStripe\AzureStorage\Adapter\PublicCachedAdapter
+    constructor:
+      adapter: '%$FullscreenInteractive\SilverStripe\AzureStorage\Adapter\PublicAdapter'
+      cache: '%$Symfony\Component\Cache\Adapter\FilesystemAdapter.public'
   SilverStripe\Assets\Flysystem\ProtectedAdapter:
     class: FullscreenInteractive\SilverStripe\AzureStorage\Adapter\ProtectedCachedAdapter
     constructor:
       adapter: '%$FullscreenInteractive\SilverStripe\AzureStorage\Adapter\ProtectedAdapter'
-      cache: '%$League\Flysystem\Cached\Storage\Adapter.protected'
+      cache: '%$Symfony\Component\Cache\Adapter\FilesystemAdapter.protected'
+  League\Flysystem\Filesystem.protected:
+    class: SilverStripe\Assets\Flysystem\Filesystem
+    constructor:
+      FilesystemAdapter: '%$SilverStripe\Assets\Flysystem\ProtectedAdapter'
+      FilesystemConfig:
+        visibility: private
+---
+Name: silverstripe-azure-flysystem-assetscore
+Only:
+  envvarset: AZURE_CONNECTION_URL
+After:
+  - '#assetsflysystem'
+  - '#assetscore'
+---
+SilverStripe\Core\Injector\Injector:
+  SilverStripe\Assets\Storage\AssetStore:
+    class: SilverStripe\Assets\Flysystem\FlysystemAssetStore
+    properties:
+      PublicFilesystem: '%$League\Flysystem\Filesystem.public'
+      ProtectedFilesystem: '%$League\Flysystem\Filesystem.protected'
+  SilverStripe\Assets\Storage\GeneratedAssetHandler:
+    class: SilverStripe\Assets\Flysystem\GeneratedAssets
+    properties:
+      Filesystem: '%$League\Flysystem\Filesystem.public'
+  SilverStripe\View\Requirements_Backend:
+    properties:
+      AssetHandler: '%$SilverStripe\Assets\Storage\GeneratedAssetHandler'

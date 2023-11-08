@@ -1,0 +1,19 @@
+---
+Name: silverstripe-azure-tinymce
+After:
+  - '#corehtml'
+---
+SilverStripe\Core\Injector\Injector:
+  League\Flysystem\Filesystem.localpublic:
+    class: 'SilverStripe\Assets\Flysystem\Filesystem'
+    constructor:
+      FilesystemAdapter: '%$FullscreenInteractive\SilverStripe\AzureStorage\Adapter\TinyMceAdapter'
+      FilesystemConfig:
+        visibility: public
+  LocalGeneratedAssetHandler:
+    class: 'SilverStripe\Assets\Flysystem\GeneratedAssets'
+    properties:
+      Filesystem: '%$League\Flysystem\Filesystem.localpublic'
+  SilverStripe\Forms\HTMLEditor\TinyMCECombinedGenerator:
+    properties:
+      AssetHandler: '%$LocalGeneratedAssetHandler'
