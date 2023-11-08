@@ -17,6 +17,7 @@
     "require": {
         "silverstripe/framework": "^5",
         "silverstripe/vendor-plugin": "*",
+        "jgivoni/flysystem-cache-adapter": "^3.0",
         "league/flysystem-azure-blob-storage": "^3.16.0"
     },
     "autoload": {

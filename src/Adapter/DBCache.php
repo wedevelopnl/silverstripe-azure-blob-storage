@@ -4,10 +4,9 @@ namespace FullscreenInteractive\SilverStripe\AzureStorage\Adapter;
 
 use Exception;
 use FullscreenInteractive\SilverStripe\AzureStorage\Model\BlobCache;
-use League\Flysystem\Cached\Storage\AbstractCache;
-use League\Flysystem\Util;
+use jgivoni\Flysystem\Cache\CacheAdapter;
 
-class DBCache extends AbstractCache
+class DBCache extends CacheAdapter
 {
     /**
      * Cache key
