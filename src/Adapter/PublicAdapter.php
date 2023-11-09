@@ -2,8 +2,8 @@
 
 namespace FullscreenInteractive\SilverStripe\AzureStorage\Adapter;
 
+use League\Flysystem\Config;
 use SilverStripe\Assets\Flysystem\PublicAdapter as SilverstripePublicAdapter;
-use SilverStripe\Control\Controller;
 
 class PublicAdapter extends AzureBlobStorageAdapter implements SilverstripePublicAdapter
 {
@@ -14,10 +14,6 @@ class PublicAdapter extends AzureBlobStorageAdapter implements SilverstripePubli
      */
     public function getPublicUrl($path): string
     {
-        if ($meta = $this->getMetadata($path)) {
-            return Controller::join_links($this->assetDomain, $meta['path']);
-        }
-
-        return '';
+        return $this->publicUrl($path, new Config());
     }
 }

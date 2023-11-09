@@ -2,11 +2,9 @@
 
 namespace FullscreenInteractive\SilverStripe\AzureStorage\Adapter;
 
-use DateTime;
-use MicrosoftAzure\Storage\Blob\BlobSharedAccessSignatureHelper;
-use MicrosoftAzure\Storage\Common\Internal\Resources;
+use League\Flysystem\Config;
+use League\Flysystem\FileAttributes;
 use SilverStripe\Assets\Flysystem\ProtectedAdapter as SilverstripeProtectedAdapter;
-use SilverStripe\Control\Controller;
 
 class ProtectedAdapter extends AzureBlobStorageAdapter implements SilverstripeProtectedAdapter
 {
@@ -35,6 +33,7 @@ class ProtectedAdapter extends AzureBlobStorageAdapter implements SilverstripePr
     public function setExpiry($expiry): self
     {
         $this->expiry = $expiry;
+
         return $this;
     }
 
@@ -45,51 +44,14 @@ class ProtectedAdapter extends AzureBlobStorageAdapter implements SilverstripePr
      */
     public function getProtectedUrl($path)
     {
-        if ($meta = $this->getMetadata($path)) {
-            $token = '?' . $this->presignToken($meta['path']);
-            return Controller::join_links($this->assetDomain, $meta['path'], $token);
+        $dt = new \DateTime();
+
+        if (is_string($this->getExpiry())) {
+            $dt = $dt->setTimestamp(strtotime($this->getExpiry()));
+        } else {
+            $dt = $dt->setTimestamp(strtotime('+'.$this->getExpiry().' seconds'));
         }
 
-        return '';
-    }
-
-    public function getVisibility($path): array
-    {
-        // Save an API call
-        return [
-            'path'       => $path,
-            'visibility' => self::VISIBILITY_PRIVATE
-        ];
-    }
-
-    /**
-     * Build a presigned token with an expiry
-     *
-     * @param string $path
-     * @return string
-     */
-    protected function presignToken(string $path): string
-    {
-        $sasHelper = new BlobSharedAccessSignatureHelper(
-            $this->settings->getName(),
-            $this->settings->getKey()
-        );
-
-        // Get expiry string
-        $expiry = $this->getExpiry();
-        if (is_int($expiry)) {
-            $expiry = "+{$expiry} seconds";
-        }
-        $validFrom = new DateTime();
-        $expiry = (new DateTime())->modify($expiry);
-
-        // Build token
-        return $sasHelper->generateBlobServiceSharedAccessSignatureToken(
-            Resources::RESOURCE_TYPE_BLOB,
-            $this->container . '/' . $path,
-            'r',
-            $expiry,
-            $validFrom
-        );
+        return $this->temporaryUrl($path, $dt, new Config());
     }
 }

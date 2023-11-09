@@ -5,26 +5,12 @@ namespace FullscreenInteractive\SilverStripe\AzureStorage\Adapter;
 use FullscreenInteractive\SilverStripe\AzureStorage\Service\BlobService;
 use InvalidArgumentException;
 use League\Flysystem\AzureBlobStorage\AzureBlobStorageAdapter as BaseAdapter;
+use League\Flysystem\FileAttributes;
 use MicrosoftAzure\Storage\Common\Internal\StorageServiceSettings;
 
 abstract class AzureBlobStorageAdapter extends BaseAdapter
 {
-    /**
-     * @var string
-     */
-    protected $assetDomain = null;
-
-    /**
-     * @var StorageServiceSettings
-     */
-    protected $container = null;
-
-    /**
-     * @var StorageServiceSettings|null
-     */
-    protected $settings = null;
-
-    public function __construct($connectionUrl = '', $containerName = '', $assetDomain = '')
+    public function __construct(string $connectionUrl = '', string $containerName = '', ?string $prefix = '', ?int $maxResultsForContentsListing = 5000)
     {
         if (!$connectionUrl) {
             throw new InvalidArgumentException("AZURE_CONNECTION_URL environment variable not set");
@@ -36,23 +22,39 @@ abstract class AzureBlobStorageAdapter extends BaseAdapter
             );
         }
 
-        // Store settings
-        $this->container = $containerName;
-        $this->settings = StorageServiceSettings::createFromConnectionString($connectionUrl);
+        $settings = StorageServiceSettings::createFromConnectionString($connectionUrl);
 
         // Generate client
         $client = BlobService::clientForConnection($connectionUrl);
 
-        // Determine url
-        if ($assetDomain) {
-            $this->assetDomain = $assetDomain;
-        } else {
-            $this->assetDomain = $client
-                ->getPsrPrimaryUri()
-                ->withPath($containerName)
-                ->__toString();
-        }
+        parent::__construct(
+            $client,
+            $containerName,
+            $prefix ?? '',
+            null,
+            $maxResultsForContentsListing,
+            self::ON_VISIBILITY_IGNORE,
+            $settings
+        );
+    }
 
-        parent::__construct($client, $containerName);
+
+    public function getMetadata($path): array
+    {
+        debug_backtrace();
+
+        return [];
+    }
+
+
+
+    public function visibility($path): FileAttributes
+    {
+        return new FileAttributes($path, null, 'public');
+    }
+
+    public function setVisibility($path, $visibility): void
+    {
+        // no op
     }
 }

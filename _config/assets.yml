@@ -14,7 +14,7 @@ SilverStripe\Core\Injector\Injector:
     constructor:
       connectionUrl: '`AZURE_CONNECTION_URL`'
       containerName: '`AZURE_CONTAINER_NAME`'
-      assetDomain: '`AZURE_PUBLIC_BLOB_DOMAIN`'
+      prefix: '`AZURE_PUBLIC_BLOB_DOMAIN`'
   FullscreenInteractive\SilverStripe\AzureStorage\Adapter\ProtectedAdapter:
     constructor:
       connectionUrl: '`AZURE_CONNECTION_URL`'
