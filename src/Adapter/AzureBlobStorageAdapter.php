@@ -24,7 +24,7 @@ abstract class AzureBlobStorageAdapter extends BaseAdapter
      */
     protected $settings = null;
 
-    public function __construct($connectionUrl = '', $containerName = '', $assetDomain = '')
+    public function __construct($connectionUrl = '', $containerName = '', $assetDomain = '', $pathPrefix = null)
     {
         if (!$connectionUrl) {
             throw new InvalidArgumentException("AZURE_CONNECTION_URL environment variable not set");
@@ -47,10 +47,10 @@ abstract class AzureBlobStorageAdapter extends BaseAdapter
         } else {
             $this->assetDomain = $client
                 ->getPsrPrimaryUri()
-                ->withPath($containerName)
+                ->withPath('/' . $containerName)
                 ->__toString();
         }
 
-        parent::__construct($client, $containerName);
+        parent::__construct($client, $containerName, $pathPrefix);
     }
 }
