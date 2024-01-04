@@ -86,7 +86,7 @@ class ProtectedAdapter extends AzureBlobStorageAdapter implements SilverstripePr
         // Build token
         return $sasHelper->generateBlobServiceSharedAccessSignatureToken(
             Resources::RESOURCE_TYPE_BLOB,
-            $this->container . '/' . $path,
+            $this->container . '/' . $this->applyPathPrefix($path),
             'r',
             $expiry,
             $validFrom
