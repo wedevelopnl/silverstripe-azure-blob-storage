@@ -5,6 +5,7 @@ namespace FullscreenInteractive\SilverStripe\AzureStorage\Adapter;
 use FullscreenInteractive\SilverStripe\AzureStorage\Service\BlobService;
 use InvalidArgumentException;
 use League\Flysystem\AzureBlobStorage\AzureBlobStorageAdapter as BaseAdapter;
+use League\Flysystem\Config;
 use MicrosoftAzure\Storage\Common\Internal\StorageServiceSettings;
 
 abstract class AzureBlobStorageAdapter extends BaseAdapter
@@ -52,5 +53,29 @@ abstract class AzureBlobStorageAdapter extends BaseAdapter
         }
 
         parent::__construct($client, $containerName, $pathPrefix);
+    }
+
+    public function writeStream($path, $resource, Config $config)
+    {
+        if (is_resource($resource) && !\stream_get_meta_data($resource)['seekable']) {
+            $resource = $this->makeStreamSeekable($resource);
+        }
+
+        return parent::writeStream($path, $resource, $config);
+    }
+
+    private function makeStreamSeekable($resource)
+    {
+        $seekableStream = fopen('php://temp', 'w+b');
+
+        if ($seekableStream === false) {
+            throw new \Exception("Failed to open temporary stream");
+        }
+
+        stream_copy_to_stream($resource, $seekableStream);
+        rewind($seekableStream);
+        fclose($resource);
+
+        return $seekableStream;
     }
 }
